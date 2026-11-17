@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ٹریڈنگ بوٹ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap">
+<style>
+:root{--bg:#fff;--card:#f5f7f6;--ink:#1e2329;--mute:#707a8a;--line:#e3e6e8;--up:#2ebd85;--dn:#f6465d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#0b0e11;--card:#161a1e;--ink:#eaecef;--mute:#848e9c;--line:#2b3139}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Naskh Arabic","Geeza Pro",Tahoma,serif;line-height:1.7;font-size:15px}
+main{max-width:560px;margin:0 auto;padding:12px 14px 24px}
+.num{direction:ltr;unicode-bidi:isolate;display:inline-block;font-variant-numeric:tabular-nums}
+.mute{color:var(--mute);font-size:.8rem}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+button{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:0 12px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--up);outline-offset:2px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin:4px 0}
+.price{font-size:2.1rem;font-weight:700;line-height:1.3}
+.st{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;font-size:.85rem;direction:ltr;text-align:left}
+.st b{display:block;line-height:1.3;margin-bottom:4px}
+#ma{display:block;font-size:.78rem;direction:ltr;text-align:left;min-height:1.4em;word-spacing:4px}
+html{overflow-x:hidden}
+svg{width:100%;height:auto;display:block}
+#cd{touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;text-align:center}
+#sig{font-size:2.4rem;font-weight:700;line-height:1.4}
+.row{display:flex;gap:8px;margin-top:10px}
+#go{flex:1;font-weight:700;padding:6px;background:var(--ink);color:var(--bg);border:0}
+#go:disabled{opacity:.6}
+#go[data-t="up"]{background:var(--up);color:#fff}
+#go[data-t="dn"]{background:var(--dn);color:#fff}
+#auto[aria-pressed="true"][data-t="up"]{background:var(--up);color:#fff;border-color:transparent}
+#auto[aria-pressed="true"][data-t="dn"]{background:var(--dn);color:#fff;border-color:transparent}
+#per{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+</style>
+</head>
+<body>
+<main>
+<div class="tabs" id="sym" role="group" aria-label="سکہ"></div>
+<div class="top">
+  <div><div id="pr" class="price num">—</div><div id="chg" class="num" dir="ltr">—</div></div>
+  <div class="st">
+    <div><span class="mute">24h High</span><b id="hi" class="num">—</b></div>
+    <div><span class="mute" id="vbl">24h Vol</span><b id="vb" class="num">—</b></div>
+    <div><span class="mute">24h Low</span><b id="lo" class="num">—</b></div>
+    <div><span class="mute">Vol(USDT)</span><b id="vq" class="num">—</b></div>
+  </div>
+</div>
+<div class="tabs" id="tf" role="group" aria-label="وقت"></div>
+<div id="ma" class="num"></div>
+<div class="tabs" style="align-items:center"><button id="zi" aria-label="زوم ان">＋</button><button id="zo" aria-label="زوم آؤٹ">－</button><button id="nw">⏭ تازہ</button><span class="mute">چارٹ کو ہاتھ سے کھینچیں، دو انگلیوں سے زوم کریں</span></div>
+<svg id="cd" viewBox="0 0 640 345" role="img" aria-label="کینڈل چارٹ"></svg>
+
+<div class="card" aria-live="polite">
+  <div class="mute">ابھی رجحان (9 اور 21 اوسط)</div>
+  <div id="sig">—</div>
+  <div id="msg" class="mute">ریفریش کا بٹن دبائیں</div>
+  <div class="row"><button id="go">🔄 ریفریش</button><button id="auto" aria-pressed="true">⏱ لائیو: چالو</button></div>
+  <div class="mute" style="margin-top:6px">آخری اپڈیٹ: <span id="t" class="num">—</span></div>
+</div>
+<div class="card"><div class="mute">رجحان کی تبدیلیاں</div><div id="log" class="mute">ابھی کوئی تبدیلی نہیں</div></div>
+<div class="card" id="per"></div>
+<p class="mute" style="text-align:center">یہ صرف تکنیکی اشارہ ہے، مالی مشورہ نہیں۔ نقصان ممکن ہے۔</p>
+</main>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var syms=["BTC","ETH","SOL","BNB"],tfs=[["1s","1s"],["1m","1m"],["15m","15m"],["1h","1h"],["4h","4h"],["1D","1d"]];
+var cs="BTC",ct="1m",last=null,NV=60,off=0,live=true,ws=null,rt=null,S={},logs=[],dc={},B="https://api.binance.com/api/v3/";
+function J(u){return fetch(B+u).then(function(r){if(!r.ok)throw 0;return r.json()})}
+function dp(p){return p>=100?2:p>=1?4:6}
+function f(n,d){return(+n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d})}
+function big(n){return n>=1e9?f(n/1e9,2)+"B":n>=1e6?f(n/1e6,2)+"M":n>=1e3?f(n/1e3,2)+"K":f(n,2)}
+function sma(a,p,e){var s=0;for(var i=e-p;i<e;i++)s+=a[i];return s/p}
+function mk(id,items,get,set){var el=$(id);el.innerHTML="";items.forEach(function(x){var b=document.createElement("button");b.textContent=x[0];b.setAttribute("aria-pressed",get()==x[1]);b.onclick=function(){last=null;off=0;set(x[1]);mk(id,items,get,set);load()};el.appendChild(b)})}
+function draw(k,dg){
+  var n=k.length,N=Math.min(NV,n-1),e0=n-off,v=k.slice(e0-N,e0),cl=k.map(function(x){return+x[4]}),PW=560,PH=240,hi=-1e18,lo=1e18,vm=0,o="",i,lg=[];
+  v.forEach(function(x){hi=Math.max(hi,+x[2]);lo=Math.min(lo,+x[3]);vm=Math.max(vm,+x[5])});
+  var pad=(hi-lo)*.08||1,H0=hi,L0=lo;hi+=pad;lo-=pad;
+  var Y=function(p){return PH*(hi-p)/(hi-lo)},w=PW/N;
+  for(i=0;i<5;i++){var y=PH*i/4;o+='<line x1="0" x2="'+PW+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/>'+(Math.abs(y-Y(+k[n-1][4]))>12?'<text x="'+(PW+5)+'" y="'+Math.max(y+4,11)+'" font-size="11" fill="var(--mute)">'+f(hi-(hi-lo)*i/4,dg)+'</text>':'')}
+  o+='<defs><clipPath id="cp"><rect width="'+PW+'" height="'+PH+'"/></clipPath></defs><g clip-path="url(#cp)">';
+  var mh=-1,ml=-1;
+  v.forEach(function(x,j){var op=+x[1],h=+x[2],l=+x[3],c=+x[4],cx=w*j+w/2,col=c>=op?"var(--up)":"var(--dn)",t=Y(Math.max(op,c)),b=Y(Math.min(op,c));
+    if(h==H0&&mh<0)mh=j;if(l==L0&&ml<0)ml=j;
+    o+='<line x1="'+cx+'" x2="'+cx+'" y1="'+Y(h)+'" y2="'+Y(l)+'" stroke="'+col+'" stroke-width="1.4"/><rect x="'+(cx-w*.35)+'" y="'+t+'" width="'+(w*.7)+'" height="'+Math.max(b-t,1.5)+'" fill="'+col+'"/>'});
+  [[7,"#e8b923"],[25,"#e040a0"],[99,"#8e63bd"]].forEach(function(m){var pts=[];
+    v.forEach(function(_,j){var e=e0-N+j+1;if(e>=m[0])pts.push((w*j+w/2).toFixed(1)+","+Y(sma(cl,m[0],e)).toFixed(1))});
+    if(e0>=m[0])lg.push('<span style="color:'+m[1]+'">MA('+m[0]+'): '+f(sma(cl,m[0],e0),dg)+'</span>');
+    if(pts.length>1)o+='<polyline points="'+pts.join(" ")+'" fill="none" stroke="'+m[1]+'" stroke-width="1.4"/>'});
+  o+='</g>';
+  [[mh,H0,Y(H0)-4],[ml,L0,Y(L0)+12]].forEach(function(a){var cx=w*a[0]+w/2;o+='<text x="'+cx+'" y="'+a[2]+'" font-size="11" fill="var(--ink)" text-anchor="'+(cx<PW/2?"start":"end")+'">'+f(a[1],dg)+'</text>'});
+  var lc=+k[n-1][4],ly=Math.min(Math.max(Y(lc),0),PH),up=lc>=+k[n-1][1],lcol=up?"var(--up)":"var(--dn)";
+  o+='<line x1="0" x2="'+PW+'" y1="'+ly+'" y2="'+ly+'" stroke="var(--mute)" stroke-dasharray="4 4"/><rect x="'+(PW+1)+'" y="'+(ly-9)+'" width="79" height="18" rx="3" fill="'+lcol+'"/><text x="'+(PW+5)+'" y="'+(ly+4)+'" font-size="11" fill="#fff">'+f(lc,dg)+'</text>';
+  for(i=0;i<N;i++){var x=v[i],hh=vm?56*(+x[5])/vm:0;o+='<rect x="'+(w*i+w*.15)+'" y="'+(322-hh)+'" width="'+(w*.7)+'" height="'+hh+'" fill="'+(+x[4]>=+x[1]?"var(--up)":"var(--dn)")+'" opacity=".7"/>'}
+  [[0,"start"],[N>>1,"middle"],[N-1,"end"]].forEach(function(a){var d=new Date(+v[a[0]][0]),s=ct=="1d"?(d.getMonth()+1)+"-"+d.getDate():d.toLocaleTimeString("en-GB",ct=="1s"?{}:{hour:"2-digit",minute:"2-digit"});
+    o+='<text x="'+Math.min(Math.max(w*a[0]+w/2,0),PW)+'" y="340" font-size="11" fill="var(--mute)" text-anchor="'+a[1]+'">'+s+'</text>'});
+  $("cd").innerHTML=o;$("ma").innerHTML=lg.join(" ");
+}
+function note(up){var t=new Date().toLocaleTimeString("en-GB");logs.unshift((up?"⬆ اوپر":"⬇ نیچے")+" شروع ہوا — "+t);logs=logs.slice(0,5);$("log").innerHTML=logs.map(function(x){return"<div>"+x+"</div>"}).join("");
+  try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}
+  try{var a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator();o.frequency.value=up?880:440;o.connect(a.destination);o.start();setTimeout(function(){o.stop()},300)}catch(e){}}
+function render(){var k=S.k,t=S.t,d1=S.d;
+  var p=+k[k.length-1][4],c=+t.priceChangePercent,col=c>=0?"var(--up)":"var(--dn)",dg=dp(p);
+  $("pr").textContent=f(p,dg);$("pr").style.color=col;$("chg").textContent=(c>=0?"+":"")+f(c,2)+"%";$("chg").style.color=col;
+  $("hi").textContent=f(t.highPrice,dg);$("lo").textContent=f(t.lowPrice,dg);$("vbl").textContent="24h Vol("+cs+")";$("vb").textContent=big(+t.volume);$("vq").textContent=big(+t.quoteVolume);
+  S.dg=dg;draw(k,dg);
+  var n=d1.length,L=+d1[n-1][4],h="";
+  [["آج",0],["7 دن",7],["30 دن",30],["90 دن",90],["180 دن",180],["1 سال",364]].forEach(function(x){var ch=x[1]==0?L/+d1[n-1][1]-1:n>x[1]?L/+d1[n-1-x[1]][4]-1:null;
+    h+='<div><div class="mute">'+x[0]+'</div><b class="num '+(ch==null?"":ch>=0?"up":"dn")+'">'+(ch==null?"—":(ch>=0?"+":"")+f(ch*100,2)+"%")+'</b></div>'});
+  $("per").innerHTML=h;
+  var cl=k.slice(0,-1).map(function(x){return+x[4]}),m=cl.length,fa=sma(cl,9,m),sl=sma(cl,21,m),pf=sma(cl,9,m-1),ps=sma(cl,21,m-1),up=fa>sl,flip=last!==null&&last!==up;
+  if(flip)note(up);last=up;
+  var e=$("sig");e.textContent=up?"⬆ اوپر":"⬇ نیچے";e.className=up?"up":"dn";
+  var cross=(up&&pf<=ps)?" — ابھی ابھی اوپر کراس ہوا":(!up&&pf>=ps)?" — ابھی ابھی نیچے کراس ہوا":"";
+  $("msg").textContent=(up?"مارکیٹ اوپر جا رہی ہے":"مارکیٹ نیچے جا رہی ہے")+cross+(flip?" — ⚠ رجحان ابھی بدلا!":"");
+  $("go").dataset.t=$("auto").dataset.t=up?"up":"dn";$("t").textContent=new Date().toLocaleTimeString("en-GB");
+}
+function connect(){
+  if(!live)return;
+  if(ws){ws.onclose=null;try{ws.close()}catch(e){}ws=null}
+  var s=cs.toLowerCase()+"usdt",sy=cs,w;
+  try{w=new WebSocket("wss://stream.binance.com:9443/stream?streams="+s+"@kline_"+ct+"/"+s+"@miniTicker")}catch(e){return}
+  ws=w;
+  w.onmessage=function(m){var x=JSON.parse(m.data).data;if(!x||!S.k)return;
+    if(x.e=="kline"){var c=x.k,row=[c.t,c.o,c.h,c.l,c.c,c.v],L=S.k[S.k.length-1];if(+L[0]==c.t)S.k[S.k.length-1]=row;else if(c.t>+L[0]){S.k.push(row);if(off>0)off++;if(S.k.length>1000)S.k.shift()}}
+    else if(x.e=="24hrMiniTicker"){var o=+x.o;S.t={priceChangePercent:o?(x.c-o)/o*100:0,highPrice:x.h,lowPrice:x.l,volume:x.v,quoteVolume:x.q}}
+    if(!rt)rt=setTimeout(function(){rt=null;render()},400)};
+  w.onclose=function(){setTimeout(function(){if(live&&ws===w&&sy==cs)connect()},3000)};
+}
+function load(q){
+  var b=$("go"),sy=cs+"USDT",now=Date.now();
+  if(ws){ws.onclose=null;ws.close();ws=null}
+    if(!q){b.disabled=true;$("msg").textContent="لوڈ ہو رہا ہے…"}
+  var dd=dc[sy]&&now-dc[sy].t<60000?Promise.resolve(dc[sy].d):J("klines?symbol="+sy+"&interval=1d&limit=365").then(function(d){dc[sy]={t:now,d:d};return d});
+  Promise.all([J("klines?symbol="+sy+"&interval="+ct+"&limit=500"),J("ticker/24hr?symbol="+sy),dd])
+  .then(function(r){S.k=r[0];S.t=r[1];S.d=r[2];render();connect()})
+  .catch(function(){$("msg").textContent="ڈیٹا نہیں آیا۔ انٹرنیٹ دیکھیں اور دوبارہ ریفریش کریں۔"})
+  .then(function(){b.disabled=false});
+}
+mk("sym",syms.map(function(x){return[x,x]}),function(){return cs},function(v){cs=v});
+mk("tf",tfs,function(){return ct},function(v){ct=v});
+$("go").onclick=function(){load()};
+$("auto").onclick=function(){live=!live;if(live)connect();else if(ws){ws.onclose=null;ws.close();ws=null}this.setAttribute("aria-pressed",live);this.textContent=live?"⏱ لائیو: چالو":"⏱ لائیو: بند"};
+function redraw(){if(S.k)draw(S.k,S.dg)}
+function setOff(v){off=Math.max(0,Math.min(v,(S.k?S.k.length:0)-NV-1));redraw()}
+function setN(v){NV=Math.max(15,Math.min(200,v));setOff(off)}
+var P={},acc=0,pd=0,n0=60,cv=$("cd");
+function dist(){var a=Object.keys(P).map(function(k){return P[k]});return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)}
+cv.onpointerdown=function(e){P[e.pointerId]={x:e.clientX,y:e.clientY};try{cv.setPointerCapture(e.pointerId)}catch(x){}acc=0;if(Object.keys(P).length==2){pd=dist();n0=NV}};
+cv.onpointermove=function(e){var p=P[e.pointerId];if(!p||!S.k)return;
+  if(Object.keys(P).length==2){P[e.pointerId]={x:e.clientX,y:e.clientY};var d=dist();if(pd&&d)setN(Math.round(n0*pd/d))}
+  else{var cp=cv.getBoundingClientRect().width/640*(560/NV);acc+=(e.clientX-p.x)/cp;P[e.pointerId]={x:e.clientX,y:e.clientY};var m=Math.trunc(acc);if(m){acc-=m;setOff(off+m)}}};
+function pend(e){delete P[e.pointerId];acc=0}
+cv.onpointerup=pend;cv.onpointercancel=pend;
+cv.addEventListener("wheel",function(e){e.preventDefault();setN(NV+(e.deltaY>0?5:-5))},{passive:false});
+$("zi").onclick=function(){setN(NV-10)};$("zo").onclick=function(){setN(NV+10)};$("nw").onclick=function(){setOff(0)};
+load();
+})();
+</script>
+</body>
+</html>
