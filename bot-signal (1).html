@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ٹریڈنگ بوٹ سگنل</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap">
+<style>
+:root{--bg:#eef2f0;--card:#fbfdfc;--ink:#14302b;--mute:#62786f;--line:#d5dfdb;--up:#1c7f55;--dn:#c0392f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1b18;--card:#162622;--ink:#e6f0ec;--mute:#8fa79e;--line:#26403a;--up:#4fcf94;--dn:#f06b5f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Naskh Arabic","Geeza Pro",Tahoma,serif;line-height:1.8;font-size:16px}
+main{max-width:480px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center}
+.num{direction:ltr;unicode-bidi:isolate;display:inline-block;font-variant-numeric:tabular-nums}
+.tabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+button,select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:2px 14px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+#go{width:100%;font-size:1.2rem;font-weight:700;padding:8px;background:var(--ink);color:var(--bg);border:0}
+#go:disabled{opacity:.6}
+button:focus-visible,select:focus-visible{outline:2px solid var(--up);outline-offset:2px}
+#sig{font-size:3rem;font-weight:700;line-height:1.4;margin:4px 0}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0}
+.row:last-child{border:0}
+.mute{color:var(--mute);font-size:.85rem}
+</style>
+</head>
+<body>
+<main>
+<h1>ٹریڈنگ بوٹ سگنل</h1>
+
+<div class="card">
+  <div class="tabs" id="sym" role="group" aria-label="سکہ"></div>
+  <div class="tabs" id="tf" role="group" aria-label="وقت"></div>
+  <button id="go">🔄 ریفریش</button>
+  <div class="tabs" style="margin:10px 0 0"><button id="auto" aria-pressed="false">⏱ خودکار: بند</button></div>
+</div>
+
+<div class="card" aria-live="polite">
+  <div class="mute">ابھی رجحان</div>
+  <div id="sig">—</div>
+  <div id="msg" class="mute">ریفریش کا بٹن دبائیں</div>
+</div>
+
+<div class="card">
+  <div class="mute">رجحان کی تبدیلیاں</div>
+  <div id="log" class="mute">ابھی کوئی تبدیلی نہیں</div>
+</div>
+
+<div class="card">
+  <div class="row"><span>قیمت</span><b class="num" id="p">—</b></div>
+  <div class="row"><span>تیز اوسط (9)</span><b class="num" id="f">—</b></div>
+  <div class="row"><span>سست اوسط (21)</span><b class="num" id="s">—</b></div>
+  <div class="row"><span>آخری اپڈیٹ</span><b class="num" id="t">—</b></div>
+</div>
+<p class="mute" style="text-align:center">یہ صرف تکنیکی اشارہ ہے، مالی مشورہ نہیں۔ نقصان ممکن ہے۔</p>
+</main>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var syms=[["BTC","BTCUSDT"],["ETH","ETHUSDT"],["SOL","SOLUSDT"],["BNB","BNBUSDT"]];
+var tfs=[["1 سیکنڈ","1s"],["1 منٹ","1m"],["5 منٹ","5m"],["15 منٹ","15m"],["1 گھنٹہ","1h"]];
+var cs="BTCUSDT",ct="5m",last=null,timer=null,logs=[];
+function mk(id,items,get,set){var el=$(id);el.innerHTML="";items.forEach(function(x){var b=document.createElement("button");b.textContent=x[0];b.setAttribute("aria-pressed",get()==x[1]);b.onclick=function(){last=null;set(x[1]);mk(id,items,get,set);load()};el.appendChild(b)})}
+function sma(a,n){var s=0;for(var i=a.length-n;i<a.length;i++)s+=a[i];return s/n}
+function fmt(n){return n.toLocaleString("en-US",{maximumFractionDigits:n<10?4:2})}
+function load(q){
+  var b=$("go");if(!q){b.disabled=true;$("msg").textContent="لوڈ ہو رہا ہے…"}
+  fetch("https://api.binance.com/api/v3/klines?symbol="+cs+"&interval="+ct+"&limit=40")
+  .then(function(r){if(!r.ok)throw 0;return r.json()})
+  .then(function(d){
+    var c=d.slice(0,-1).map(function(k){return parseFloat(k[4])});
+    var price=parseFloat(d[d.length-1][4]),f=sma(c,9),s=sma(c,21),pf=sma(c.slice(0,-1),9),ps=sma(c.slice(0,-1),21);
+    var up=f>s,e=$("sig"),flip=last!==null&&last!==up;if(flip)note(up);last=up;
+    e.textContent=up?"⬆ اوپر":"⬇ نیچے";e.className=up?"up":"dn";
+    var cross=(up&&pf<=ps)?" — ابھی ابھی اوپر کراس ہوا (خرید کا اشارہ)":(!up&&pf>=ps)?" — ابھی ابھی نیچے کراس ہوا (فروخت کا اشارہ)":"";
+    $("msg").textContent=(up?"مارکیٹ اوپر جا رہی ہے":"مارکیٹ نیچے جا رہی ہے")+cross+(flip?" — ⚠ رجحان ابھی بدلا!":"");
+    $("p").textContent="$"+fmt(price);$("f").textContent=fmt(f);$("s").textContent=fmt(s);
+    $("t").textContent=new Date().toLocaleTimeString("en-GB");
+  })
+  .catch(function(){$("sig").textContent="—";$("sig").className="";$("msg").textContent="ڈیٹا نہیں آیا۔ انٹرنیٹ دیکھیں اور دوبارہ ریفریش کریں۔"})
+  .then(function(){b.disabled=false});
+}
+mk("sym",syms,function(){return cs},function(v){cs=v});
+mk("tf",tfs,function(){return ct},function(v){ct=v});
+function note(up){var t=new Date().toLocaleTimeString("en-GB");logs.unshift((up?"⬆ اوپر":"⬇ نیچے")+" شروع ہوا — "+t);logs=logs.slice(0,5);$("log").innerHTML=logs.map(function(x){return"<div>"+x+"</div>"}).join("");try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}try{var a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator();o.frequency.value=up?880:440;o.connect(a.destination);o.start();setTimeout(function(){o.stop()},300)}catch(e){}}
+$("go").onclick=function(){load()};
+$("auto").onclick=function(){var on=!timer;if(on){timer=setInterval(function(){load(1)},3000);load(1)}else{clearInterval(timer);timer=null}this.setAttribute("aria-pressed",on);this.textContent=on?"⏱ خودکار: چالو":"⏱ خودکار: بند"};
+load();
+})();
+</script>
+</body>
+</html>
