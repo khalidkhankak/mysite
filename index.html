@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Halat Trader</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap">
+<style>
+:root{--cy:#18e0ff;--gr:#36ff6a;--mg:#ff2bd6;--ye:#ffe14a;--pu:#8a5cff;--rd:#ff4d6d;--tx:#e8edf7;--mu:#8e9ab3;--cd:rgba(14,19,34,.92);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{background:#070a12;overflow-x:hidden}
+body{margin:0;color:var(--tx);font-family:"Space Grotesk","Noto Naskh Arabic","Geeza Pro",Tahoma,sans-serif;line-height:1.7;font-size:15px;background:radial-gradient(circle at 15% 0,rgba(255,43,214,.18),transparent 45%),radial-gradient(circle at 90% 30%,rgba(24,224,255,.15),transparent 45%),#070a12;min-height:100vh}
+main{max-width:520px;margin:0 auto;padding:14px}
+.l{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.box{background:var(--cd);border:1.5px solid var(--cy);border-radius:18px;padding:12px;margin-bottom:12px;box-shadow:0 0 14px rgba(24,224,255,.35),inset 0 0 12px rgba(24,224,255,.08)}
+.hd{display:flex;align-items:center;gap:10px}
+.logo{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:1.7rem;border:3px solid var(--ye);background:linear-gradient(135deg,#1b2340,#3a1a52);box-shadow:0 0 12px rgba(255,225,74,.5)}
+.nm{font-size:1.35rem;font-weight:700;color:var(--ye);letter-spacing:1px;line-height:1.2}
+.sb{color:var(--cy);font-size:.85rem}
+.pill{margin-inline-start:auto;border:1.5px solid var(--gr);color:var(--gr);border-radius:999px;padding:0 12px;font-size:.85rem;background:rgba(54,255,106,.1)}
+.pill.off{border-color:var(--rd);color:var(--rd);background:rgba(255,77,109,.1)}
+.ban{text-align:center;font-weight:700;border-color:var(--mg);box-shadow:0 0 14px rgba(255,43,214,.4);color:var(--gr)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.chip{font:inherit;color:var(--tx);background:rgba(20,26,46,.9);border:1.5px solid #2a3552;border-radius:12px;padding:2px 14px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--cy);color:var(--cy);box-shadow:0 0 10px rgba(24,224,255,.5)}
+.tf[aria-pressed="true"]{background:linear-gradient(135deg,var(--cy),var(--pu));color:#04101c;border-color:transparent;font-weight:700}
+.chip:focus-visible,.gen:focus-visible{outline:2px solid var(--ye);outline-offset:2px}
+.pr{display:flex;justify-content:space-between;align-items:center}
+.pv{font-size:1.8rem;font-weight:700;color:var(--cy);line-height:1.3}
+.al{display:flex;align-items:center;gap:10px;border-color:var(--ye);box-shadow:0 0 14px rgba(255,225,74,.25)}
+.al b{display:block}.al span{color:var(--mu);font-size:.8rem}
+.sw{margin-inline-start:auto;width:54px;height:30px;border-radius:999px;border:0;background:#2a3552;position:relative;cursor:pointer;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#cbd3e6;transition:.2s}
+.sw[aria-pressed="true"]{background:var(--gr)}
+.sw[aria-pressed="true"]::after{left:27px;background:#04101c}
+.gen{width:100%;border:0;border-radius:20px;padding:14px;margin-bottom:12px;cursor:pointer;color:#04101c;font:inherit;background:linear-gradient(90deg,#36ff6a,#18e0ff 50%,#e8ff1a);box-shadow:0 0 20px rgba(54,255,106,.55)}
+.gen b{display:block;font-size:1.25rem;letter-spacing:2px}.gen:disabled{opacity:.6}
+.top{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.tag{border:1.5px solid var(--cy);border-radius:10px;padding:0 10px;font-size:.85rem}
+.tag.t{margin-inline-start:auto;border-color:var(--gr);color:var(--gr)}
+.sg{display:flex;align-items:center;gap:12px}
+.ic{width:62px;height:62px;border-radius:16px;display:grid;place-items:center;font-size:2rem;border:2px solid currentColor;flex:none}
+.big{font-size:1.5rem;font-weight:700;line-height:1.3}
+.cf{margin-inline-start:auto;text-align:center;font-size:1.6rem;font-weight:700;line-height:1.2}
+.cf small{display:block;font-size:.7rem;color:var(--mu);font-weight:400}
+.bar{height:8px;border-radius:99px;background:#1b233a;margin:12px 0;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;transition:width .5s;background:currentColor}
+.why{background:rgba(20,26,46,.9);border:1px solid #2a3552;border-radius:12px;padding:8px 10px;color:#c6cee0;font-size:.9rem}
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.tri div{border:1.5px solid;border-radius:12px;padding:4px 8px;font-size:.8rem;text-align:center}
+.tri b{display:block;font-size:.95rem}
+.buy{color:var(--gr)}.sell{color:var(--rd)}.wait{color:var(--ye)}
+.nt{color:var(--mu);font-size:.78rem;text-align:center;margin:6px 0 20px}
+.emp{text-align:center;color:var(--mu)}
+.logo{overflow:hidden}
+.ct{display:flex;gap:10px}.ct[hidden]{display:none}
+.ct a{flex:1;text-align:center;text-decoration:none;font-weight:700;border-radius:14px;padding:6px;border:1.5px solid}
+.wa{color:#25d366;border-color:#25d366;background:rgba(37,211,102,.1)}
+.cl{color:var(--cy);border-color:var(--cy);background:rgba(24,224,255,.08)}
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+<main>
+<div class="box hd">
+  <div class="logo" id="logo">📈</div>
+  <div><div class="nm l" id="app">HALAT TRADER</div><div class="sb" id="tg">اسمارٹ ٹریڈنگ بوٹ</div></div>
+  <div class="pill" id="on">● Online</div>
+</div>
+<div class="box ct" id="ct" hidden></div>
+<div class="box ban">★ Trade Smart • Risk Smart ★</div>
+
+<div class="box">
+  <div class="chips" id="pairs" role="group" aria-label="جوڑی"></div>
+  <div class="pr"><span class="sb">قیمت</span><span class="pv l" id="pv">—</span><span class="l" id="pc">—</span></div>
+</div>
+<div class="chips" id="tfs" role="group" aria-label="وقت"></div>
+
+<div class="box al">
+  <div aria-hidden="true" style="font-size:1.6rem">🔔</div>
+  <div><b>مضبوط اشارہ الرٹ</b><span>75% یا زیادہ اتفاق پر اطلاع (صفحہ کھلا رہنا چاہیے)</span></div>
+  <button class="sw" id="sw" aria-pressed="false" aria-label="الرٹ"></button>
+</div>
+
+<button class="gen" id="gen"><b>GENERATE SIGNAL</b>اشارہ حاصل کریں</button>
+
+<div class="box" id="res" aria-live="polite"><div class="emp">اوپر بٹن دبائیں تاکہ لائیو کینڈلز کا تجزیہ ہو سکے۔</div></div>
+<p class="nt">یہ اشارے صرف تکنیکی انڈیکیٹرز سے بنتے ہیں، منافع کی ضمانت نہیں۔ مالی مشورہ نہیں۔ نقصان ممکن ہے۔</p>
+</main>
+<script>
+(function(){
+var C=window.CFG||{},APP_NAME=C.NAME||"HALAT TRADER";
+var $=function(i){return document.getElementById(i)};
+var pairs=["BTC","ETH","SOL","BNB"],tfs=["1m","3m","5m","15m","30m","1h"],cs="BTC",ct="1m",alertOn=false,lastAlert="",closeAt=0,B="https://api.binance.com/api/v3/";
+document.title=APP_NAME;$("app").textContent=APP_NAME;
+if(C.TAGLINE)$("tg").textContent=C.TAGLINE;
+if(C.PHOTO){var im=new Image();im.alt="";im.style.cssText="width:100%;height:100%;object-fit:cover";im.onload=function(){$("logo").textContent="";$("logo").appendChild(im)};im.src=C.PHOTO}
+(function(){var h="",wa=String(C.WHATSAPP||"").replace(/\D/g,""),ph=String(C.PHONE||"").replace(/[^\d+]/g,"");
+if(wa)h+='<a class="wa" target="_blank" rel="noopener" href="https://wa.me/'+wa+'?text='+encodeURIComponent(C.WA_TEXT||"السلام علیکم")+'">💬 WhatsApp</a>';
+if(ph)h+='<a class="cl" href="tel:'+ph+'">📞 '+ph+'</a>';
+if(h){$("ct").innerHTML=h;$("ct").hidden=false}})();
+function J(u){return fetch(B+u).then(function(r){if(!r.ok)throw 0;return r.json()})}
+function f(n,d){return(+n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d})}
+function dp(p){return p>=100?2:p>=1?4:6}
+function ema(a,p){var k=2/(p+1),e=a[0],r=[e];for(var i=1;i<a.length;i++){e=a[i]*k+e*(1-k);r.push(e)}return r}
+function rsi(a,p){var g=0,l=0,i,d;for(i=1;i<=p;i++){d=a[i]-a[i-1];if(d>0)g+=d;else l-=d}g/=p;l/=p;for(i=p+1;i<a.length;i++){d=a[i]-a[i-1];g=(g*(p-1)+(d>0?d:0))/p;l=(l*(p-1)+(d<0?-d:0))/p}return l==0?100:100-100/(1+g/l)}
+function chips(id,items,get,set,cls){var el=$(id);el.innerHTML="";items.forEach(function(x){var b=document.createElement("button");b.className="chip "+(cls||"");b.textContent=x;b.setAttribute("aria-pressed",get()==x);b.onclick=function(){set(x);chips(id,items,get,set,cls);price();analyze(true)};el.appendChild(b)})}
+function price(){J("ticker/24hr?symbol="+cs+"USDT").then(function(t){var p=+t.lastPrice,c=+t.priceChangePercent;$("pv").textContent=f(p,dp(p));$("pc").textContent=(c>=0?"+":"")+f(c,2)+"%";$("pc").style.color=c>=0?"var(--gr)":"var(--rd)";$("on").className="pill";$("on").textContent="● Online"}).catch(function(){$("on").className="pill off";$("on").textContent="● Offline"})}
+function analyze(silent){
+  var b=$("gen");if(!silent)b.disabled=true;
+  J("klines?symbol="+cs+"USDT&interval="+ct+"&limit=200").then(function(k){
+    closeAt=+k[k.length-1][6];k=k.slice(0,-1);
+    var c=k.map(function(x){return+x[4]}),n=c.length,p=c[n-1],dg=dp(p);
+    var e9=ema(c,9),e21=ema(c,21),e50=ema(c,50),e12=ema(c,12),e26=ema(c,26),m=e12.map(function(v,i){return v-e26[i]}),sg=ema(m,9),hist=m[n-1]-sg[n-1],r=rsi(c,14);
+    var v=[e9[n-1]>e21[n-1]?1:-1,hist>0?1:-1,r>=55?1:r<=45?-1:0,p>e50[n-1]?1:-1],sum=v[0]+v[1]+v[2]+v[3],dir=sum>0?1:sum<0?-1:0;
+    var agree=v.filter(function(x){return x==dir}).length,pct=dir?Math.round(agree/4*100):0;
+    var rg=k.map(function(x){return(+x[2]-+x[3])/+x[4]}),a14=rg.slice(-14).reduce(function(s,x){return s+x},0)/14,a100=rg.slice(-100).reduce(function(s,x){return s+x},0)/100,ratio=a14/a100;
+    var vol=ratio<.8?"کم":ratio>1.3?"زیادہ":"درمیانہ",risk=ratio>1.3?"زیادہ":(pct>=75&&ratio<.8)?"کم":"درمیانہ";
+    var why=["EMA9 "+(v[0]>0?">":"<")+" EMA21","MACD ہسٹوگرام "+(v[1]>0?"مثبت":"منفی"),"RSI "+f(r,0)+(v[2]>0?" (مضبوط مومینٹم)":v[2]<0?" (کمزور مومینٹم)":" (غیر جانبدار)"),"قیمت EMA50 سے "+(v[3]>0?"اوپر":"نیچے")].join("، ");
+    var cl=dir>0?"buy":dir<0?"sell":"wait",ti=dir>0?"CALL (BUY)":dir<0?"PUT (SELL)":"WAIT",ar=dir>0?"↗":dir<0?"↘":"⏸";
+    $("res").innerHTML='<div class="top"><span class="tag l">'+cs+'/USDT</span><span class="tag l">'+ct+'</span><span class="tag t l" id="cd">—</span></div>'+
+     '<div class="sg '+cl+'"><div class="ic">'+ar+'</div><div><div class="big l">'+ti+'</div><div class="sb l" style="color:var(--mu)">Ref '+f(p,dg)+'</div></div><div class="cf l">'+(dir?pct+"%":"—")+'<small>اتفاق</small></div></div>'+
+     '<div class="bar '+cl+'"><i style="width:'+pct+'%"></i></div><div class="why">'+why+'</div>'+
+     '<div class="tri"><div style="border-color:var(--ye);color:var(--ye)">Volatility<b>'+vol+'</b></div><div style="border-color:var(--mg);color:var(--mg)">Risk<b>'+risk+'</b></div><div style="border-color:var(--gr);color:var(--gr)">Engine<b class="l">EMA·MACD·RSI</b></div></div>';
+    tick();
+    if(alertOn&&dir&&pct>=75){var key=cs+ct+dir;if(key!=lastAlert){lastAlert=key;ping(ti+" — "+cs+"/USDT "+ct+" ("+pct+"%)")}}
+    $("on").className="pill";$("on").textContent="● Online";
+  }).catch(function(){$("on").className="pill off";$("on").textContent="● Offline";if(!silent)$("res").innerHTML='<div class="emp">ڈیٹا نہیں آیا۔ انٹرنیٹ دیکھ کر دوبارہ کوشش کریں۔</div>'}).then(function(){b.disabled=false});
+}
+function ping(t){try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}
+  try{if("Notification" in window&&Notification.permission=="granted")new Notification(APP_NAME,{body:t})}catch(e){}
+  try{var a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator();o.frequency.value=880;o.connect(a.destination);o.start();setTimeout(function(){o.stop()},300)}catch(e){}}
+function tick(){var e=$("cd");if(!e)return;var s=Math.max(0,Math.round((closeAt-Date.now())/1000));e.textContent="⏱ "+(s>=60?Math.floor(s/60)+"m "+s%60+"s":s+"s")}
+chips("pairs",pairs.map(function(x){return x}),function(){return cs},function(v){cs=v});
+chips("tfs",tfs,function(){return ct},function(v){ct=v},"tf");
+$("gen").onclick=function(){analyze(false)};
+$("sw").onclick=function(){alertOn=!alertOn;this.setAttribute("aria-pressed",alertOn);if(alertOn){try{"Notification" in window&&Notification.requestPermission()}catch(e){}ping("الرٹ چالو ہو گئے");analyze(true)}};
+setInterval(tick,1000);setInterval(price,5000);setInterval(function(){if(alertOn)analyze(true)},30000);
+price();
+})();
+</script>
+</body>
+</html>
